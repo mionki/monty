@@ -1,19 +1,21 @@
-#include "monty.h"
+#include "monty1.h"
+#include "lists.h"
+
 /**
- * m_push - handles the push instruction
+ * push_m - handles the push instruction
  * @stack: double pointer to the stack to push to
  * @line_number: number of the line in the file
  */
 
-void m_push(stack_t **stack, unsigned int line_number)
+void push_m(stack_t **stack, unsigned int line_number)
 {
-
-stack_t *new;
+	stack_t *new;
 	int num = 0, i;
 
 	if (data.words[1] == NULL)
 	{
-		dprintf(STDERR_FILENO, "L%u: usage: push integer\n", line_number);
+		dprintf(STDERR_FILENO, PUSH_FAIL, line_number);
+		free_all(1);
 		exit(EXIT_FAILURE);
 	}
 
@@ -21,7 +23,7 @@ stack_t *new;
 	{
 		if (isalpha(data.words[1][i]) != 0)
 		{
-			dprintf(STDERR_FILENO,"L%u: usage: push integer\n", line_number);
+			dprintf(STDERR_FILENO, PUSH_FAIL, line_number);
 			free_all(1);
 			exit(EXIT_FAILURE);
 		}
@@ -34,61 +36,77 @@ stack_t *new;
 		new = add_dnodeint_end(stack, num);
 	if (!new)
 	{
-		dprintf(STDERR_FILENO,"Error: malloc failed\n" );
+		dprintf(STDERR_FILENO, MALLOC_FAIL);
 		free_all(1);
 		exit(EXIT_FAILURE);
 	}
 }
 
 /**
- * m_pall - Prints the values of a stack_t linked list.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * pall_m - handles the pall instruction
+ * @stack: double pointer to the stack to push to
+ * @line_number: number of the line in the file
  */
-void m_pall(stack_t **stack, unsigned int line_number)
+void pall_m(stack_t **stack, unsigned int line_number)
 {
-	stack_t *tmp = (*stack)->next;
-
-	while (tmp)
-	{
-		printf("%d\n", tmp->n);
-		tmp = tmp->next;
-	}
 	(void)line_number;
+	if (*stack)
+		print_dlistint(*stack);
 }
 
 /**
- * m_pint - print value on top of `stack', or exit if stack is empty
- * @stack: double pointer to head of stack
- * @line_number: line number of current operation
- *
- * Return: void
+ * pint_m: - handles the pint instruction
+ * @stack: double pointer to the stack to push to
+ * @line_number: number of the line in the file
  */
-void m_pint(stack_t **stack, unsigned int line_number)
+
+
+void pint_m(stack_t **stack, unsigned int line_number)
 {
 	stack_t *head = *stack;
 
 	if (!head)
 	{
-		dprintf(STDERR_FILENO, "L%u: can't pint, stack empty\n" , line_number);
+		dprintf(STDERR_FILENO, PINT_FAIL, line_number);
+		free_all(1);
 		exit(EXIT_FAILURE);
 	}
+
 	printf("%d\n", head->n);
 }
+
 /**
- * m_swap - handles the swap instruction
+ * pop_m - handles the pop instruction
  * @stack: double pointer to the stack to push to
  * @line_number: number of the line in the file
  */
-void m_swap(stack_t **stack, unsigned int line_number)
+void pop_m(stack_t **stack, unsigned int line_number)
+{
+	stack_t *temp = *stack;
+
+	if (!temp)
+	{
+		dprintf(STDERR_FILENO, POP_FAIL, line_number);
+		free_all(1);
+		exit(EXIT_FAILURE);
+	}
+
+	delete_dnodeint_at_index(stack, 0);
+}
+
+/**
+ * swap_m - handles the swap instruction
+ * @stack: double pointer to the stack to push to
+ * @line_number: number of the line in the file
+ */
+void swap_m(stack_t **stack, unsigned int line_number)
 {
 	stack_t *temp = *stack, *node = NULL;
 	int num;
 
 	if (dlistint_len(*stack) < 2)
 	{
-		dprintf(STDERR_FILENO,
-        "L%u L<line_number>: can't swap, stack too short", line_number);
+		dprintf(STDERR_FILENO, SWAP_FAIL, line_number);
 		free_all(1);
 		exit(EXIT_FAILURE);
 	}
@@ -99,17 +117,18 @@ void m_swap(stack_t **stack, unsigned int line_number)
 	node = insert_dnodeint_at_index(stack, 1, num);
 	if (!node)
 	{
-		dprintf(STDERR_FILENO, "Error: malloc failed\n");
+		dprintf(STDERR_FILENO, MALLOC_FAIL);
 		free_all(1);
 		exit(EXIT_FAILURE);
 	}
 }
+
 /**
- * m_add - handles the add instruction
+ * add_m - handles the add instruction
  * @stack: double pointer to the stack to push to
  * @line_number: number of the line in the file
  */
-void m_add(stack_t **stack, unsigned int line_number)
+void add_m(stack_t **stack, unsigned int line_number)
 {
 	int sum = 0;
 	stack_t *node = NULL;
@@ -118,8 +137,7 @@ void m_add(stack_t **stack, unsigned int line_number)
 
 	if (dlistint_len(*stack) < 2)
 	{
-		dprintf(STDERR_FILENO,
-         "L%u L<line_number>: can't add, stack too short", line_number);
+		dprintf(STDERR_FILENO, ADD_FAIL, line_number);
 		free_all(1);
 		exit(EXIT_FAILURE);
 	}
@@ -130,17 +148,18 @@ void m_add(stack_t **stack, unsigned int line_number)
 	node = add_dnodeint(stack, sum);
 	if (!node)
 	{
-		dprintf(STDERR_FILENO, "Error:malloc failed");
+		dprintf(STDERR_FILENO, MALLOC_FAIL);
 		free_all(1);
 		exit(EXIT_FAILURE);
 	}
 }
+
 /**
- * m_nop - handles the nop instruction
+ * nop_m - handles the nop instruction
  * @stack: double pointer to the stack to push to
  * @line_number: number of the line in the file
  */
-void m_nop(stack_t **stack, unsigned int line_number)
+void nop_m(stack_t **stack, unsigned int line_number)
 {
 	(void)stack;
 	(void)line_number;
