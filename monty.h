@@ -51,10 +51,67 @@ typedef struct stack_s
  * for stack, queues, LIFO, FIFO Holberton project
  */
 typedef struct instruction_s
+{stack_t *new;
+	int num = 0, i;
+
+	if (data.words[1] == NULL)
+	{
+		dprintf(STDERR_FILENO, PUSH_FAIL, line_number);
+		free_all(1);
+		exit(EXIT_FAILURE);
+	}
+
+	for (i = 0; data.words[1][i]; i++)
+	{
+		if (isalpha(data.words[1][i]) != 0)
+		{
+			dprintf(STDERR_FILENO, PUSH_FAIL, line_number);
+			free_all(1);
+			exit(EXIT_FAILURE);
+		}
+	}
+	num = atoi(data.words[1]);
+
+	if (data.qflag == 0)
+		new = add_dnodeint(stack, num);
+	else if (data.qflag == 1)
+		new = add_dnodeint_end(stack, num);
+	if (!new)
+	{
+		dprintf(STDERR_FILENO, MALLOC_FAIL);
+		free_all(1);
+		exit(EXIT_FAILURE);
+	}
+}
 {
 	char *opcode;
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
+
+/**
+ * struct data_s - extern data to access inside functions
+ * @line: line from the file
+ * @words: parsed line
+ * @stack: pointer to the stack
+ * @fptr: file pointer
+ * @qflag: flag for queue or stack
+ */
+
+typedef struct data_s
+{
+	char *line;
+	char **words;
+	stack_t *stack;
+	FILE *fptr;
+	int qflag;
+} data_t;
+
+typedef stack_t dlistint_t;
+
+extern data_t data;
+
+#define DATA_INIT {NULL, NULL, NULL, NULL, 0}
+
 
 void get_op(char *op, stack_t **stack, unsigned int line_number);
 void m_push(stack_t **stack, unsigned int line_number);
