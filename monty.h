@@ -14,6 +14,7 @@
  * @queue: flag to determine if in stack vs queue mode
  * @stack_len: length of the stack
  */
+
 typedef struct var_s
 {
 	int queue;
@@ -106,12 +107,29 @@ typedef struct data_s
 	int qflag;
 } data_t;
 
-typedef stack_t dlistint_t;
 
-extern data_t data;
 
 #define DATA_INIT {NULL, NULL, NULL, NULL, 0}
 
+/**
+ * struct args_s - structure of arguments from main
+ * @av: name of the file from the command line
+ * @ac: number of arguments from main
+ * @line_number: number of the current line in the file
+ *
+ * Description: arguments passed to main from the command line
+ * used in different functions, organized in a struct for clarity
+ */
+typedef struct args_s
+{
+	char *av;
+	int ac;
+	unsigned int line_number;
+} args_t;
+
+typedef stack_t dlistint_t;
+
+extern data_t data;
 
 void get_op(char *op, stack_t **stack, unsigned int line_number);
 void m_push(stack_t **stack, unsigned int line_number);
